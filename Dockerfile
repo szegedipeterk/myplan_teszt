@@ -9,6 +9,9 @@ RUN apt-get update \
     && pecl install imagick \
     && docker-php-ext-enable imagick
 
+RUN mkdir -p /var/www/html/src/uploads \
+    && chown -R www-data:www-data /var/www/html/src/uploads
+
 # Másold be az Apache virtuális host konfigurációt
 COPY my-apache.conf /etc/apache2/conf-available/my-apache.conf
 RUN a2enconf my-apache
