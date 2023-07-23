@@ -1,16 +1,17 @@
-FROM php:8.0-apache
+FROM php:8.0-apache-buster
 
-RUN apt-get update && apt-get install -y \
-    libmagickwand-dev \
-    --no-install-recommends \
-    && docker-php-ext-enable imagick \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV APACHE_DOCUMENT_ROOT /var/www/html
-
+# Engedélyezi a mod_rewrite modult
 RUN a2enmod rewrite
 
-RUN echo "extension=imagick.so" >> /usr/local/etc/php/php.ini
+# Engedélyezi az imagick PHP bővítményt
+RUN apt-get update \
+    && apt-get install -y libmagickwand-dev --no-install-recommends \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick
 
-EXPOSE 80
+# Másold be az Apache virtuális host konfigurációt
+COPY my-apache.conf /etc/apache2/conf-available/my-apache.conf
+RUN a2enconf my-apache
+
+# Másold be a .htaccess fájlt
+COPY .htaccess /var/www/html/.htaccess
